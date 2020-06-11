@@ -8,7 +8,7 @@ public class Context  {
         this.item = item;
     }
 
-    public void movement(int x, int y) {
+    public void movement(float x, float y) {
         item.movement(x,y);
     }
 
@@ -29,15 +29,15 @@ public class Context  {
         return item.getColor();
     }
 
-    public int getSpeed() {
+    public float getSpeed() {
         return item.getSpeed();
     }
 
-    public int getX() {
+    public float getX() {
         return item.getX();
     }
 
-    public int getY() {
+    public float getY() {
         return item.getY();
     }
 

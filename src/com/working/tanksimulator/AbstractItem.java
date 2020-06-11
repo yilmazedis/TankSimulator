@@ -3,12 +3,12 @@ package com.working.tanksimulator;
 public abstract class AbstractItem {
 
     protected String name;
-    protected int speed;
-    protected int x, y;
+    protected float speed;
+    protected float x, y;
     protected int color;
     private Item item;
 
-    public AbstractItem(String name, int speed, int x, int y, int color) {
+    public AbstractItem(String name, float speed, float x, float y, int color) {
         this.name = name;
         this.speed = speed;
         this.x = x;
@@ -31,7 +31,7 @@ public abstract class AbstractItem {
         return  name + "," +  speed + "," + x + "," + y + "," + color;
     }
 
-    public int getSpeed() {
+    public float getSpeed() {
         return speed;
     }
 
@@ -43,11 +43,11 @@ public abstract class AbstractItem {
         return name;
     }
 
-    public int getX() {
+    public float getX() {
         return x;
     }
 
-    public int getY() {
+    public float getY() {
         return y;
     }
 }

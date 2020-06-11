@@ -1,12 +1,12 @@
 package com.working.tanksimulator;
 
 public interface Item {
-    void movement(int x, int y);
+    void movement(float x, float y);
     void printItem();
     String itemIdentifier();
-    int getSpeed();
+    float getSpeed();
     int getColor();
     String getName();
-    int getX();
-    int getY();
+    float getX();
+    float getY();
 }

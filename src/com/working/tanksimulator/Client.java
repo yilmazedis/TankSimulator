@@ -7,6 +7,9 @@ import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+
 
 // Client class
 public class Client
@@ -14,12 +17,13 @@ public class Client
     static String tosend = "";
     static DataInputStream dis = null;
     static DataOutputStream dos = null;
+    private static long window;
+    static Context item = null;
 
     public static void main(String[] args) throws IOException
     {
         Scanner scn = new Scanner(System.in);
-        Context item = null;
-        int x = 0, y = 0;
+        float x = 0.0f, y = 0.f;
         Timer timer = new Timer();
 
         System.out.println("Enter an item");
@@ -49,8 +53,6 @@ public class Client
         
         item.printItem();
 
-
-
         try
         {
             // getting localhost ip
@@ -62,21 +64,17 @@ public class Client
             // obtaining input and out streams
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-
             // Initialize Items on screen
             dos.writeUTF(item.itemIdentifier());
-
-            // the following loop performs the exchange of
-            // information between client and client handler
 
             TimerTask timerTask = new TimerTask() {
 
                 @Override
                 public void run() {
                     try {
-
+                        tosend = item.toString();
                         dos.writeUTF(tosend);
-
+                        System.out.println(tosend);
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -88,19 +86,43 @@ public class Client
 
             timer.scheduleAtFixedRate(timerTask, 250, latency * 1000);
 
-            while (true)
-            {
+            glfwInit();
 
+            long window = glfwCreateWindow(320, 240, item.getName(), 0, 0);
 
+            while(!glfwWindowShouldClose(window)) {
 
+                glfwPollEvents();
+
+                glfwSwapBuffers(window);
+
+                if ( glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+                    y += item.getSpeed() * 0.001f;
+                    System.out.println("Up");
+                }
+
+                if ( glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+                    y -= item.getSpeed() * 0.001f;
+                    System.out.println("Down");
+                }
+
+                if ( glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+                    x -= item.getSpeed() * 0.001f;
+                    System.out.println("Left");
+                }
+
+                if ( glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+                    x += item.getSpeed() * 0.001f;
+                    System.out.println("Right");
+                }
 
               //  System.out.println(dis.readUTF());
                 // toconvert = scn.nextLine();
 
                 // String[] position = toconvert.split(",");
-                item.movement(x++, y++);
+                item.movement(x, y);
 
-                tosend = item.toString();
+                System.out.println(tosend);
                 //dos.writeUTF(tosend);
 
 
@@ -115,9 +137,6 @@ public class Client
                     break;
                 }
 
-                // printing date or time as requested by client
-                //String received = dis.readUTF();
-                //System.out.println(received);
             }
 
             // closing resources

@@ -7,6 +7,8 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 
+import javax.swing.*;
+import java.awt.event.KeyAdapter;
 import java.nio.IntBuffer;
 
 import static java.sql.Types.NULL;
@@ -14,6 +16,10 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.*;
+
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
 
 public class DisplaySimulator {
 
@@ -158,27 +164,14 @@ public class DisplaySimulator {
 
         glfwInit();
 
-        long win = glfwCreateWindow(640, 480, "window", 0, 0);
+        long win = glfwCreateWindow(640, 480, "window2", 0, 0);
 
-        glfwShowWindow(win);
-
-
+        //glfwShowWindow(win);
 
 
-
-        while(glfwWindowShouldClose(win) != true) {
+        while(!glfwWindowShouldClose(win)) {
 
             glfwPollEvents();
-
-            createCapabilities();
-
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            glBegin(GL_QUADS);
-            glColor4f(1.0F, 0.0F, 0.7F, 1);
-            glVertex2f(-0.5f, 0.5f);
-
-
 
             glfwSwapBuffers(win);
 
@@ -206,9 +199,40 @@ public class DisplaySimulator {
 
         //displayMain();
 
-         run();
+         //run();
 
+            init();
 
-        System.out.println("hello world");
+//        JTextField component = new JTextField();
+//        component.addKeyListener(new MyKeyListener());
+//
+//        JFrame f = new JFrame();
+//
+//        f.add(component);
+//        f.setTitle("test");
+//        f.setSize(320, 240);
+//        f.setVisible(true);
+
+        //System.out.println("hello world");
     }
 }
+
+//class MyKeyListener extends KeyAdapter {
+//    public void keyPressed(KeyEvent evt) {
+//        if (evt.getKeyChar() == 'w') {
+//            System.out.println("Check for key characters: " + evt.getKeyChar());
+//        }
+//
+//        if (evt.getKeyChar() == 's') {
+//            System.out.println("Check for key characters: " + evt.getKeyChar());
+//        }
+//
+//        if (evt.getKeyChar() == 'a') {
+//            System.out.println("Check for key characters: " + evt.getKeyChar());
+//        }
+//
+//        if (evt.getKeyChar() == 'd') {
+//            System.out.println("Check for key characters: " + evt.getKeyChar());
+//        }
+//    }
+//}

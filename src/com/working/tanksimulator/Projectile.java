@@ -1,12 +1,12 @@
 package com.working.tanksimulator;
 
 public class Projectile extends AbstractItem implements Item{
-    public Projectile(String name, int speed, int x, int y, int color) {
+    public Projectile(String name, float speed, float x, float y, int color) {
         super(name, speed, x, y, color);
     }
 
     @Override
-    public void movement(int x, int y) {
+    public void movement(float x, float y) {
         this.x = x;
         this.y = y;
     }
@@ -32,17 +32,17 @@ public class Projectile extends AbstractItem implements Item{
     }
 
     @Override
-    public int getSpeed() {
+    public float getSpeed() {
         return super.getSpeed();
     }
 
     @Override
-    public int getX() {
+    public float getX() {
         return super.getX();
     }
 
     @Override
-    public int getY() {
+    public float getY() {
         return super.getY();
     }
 
