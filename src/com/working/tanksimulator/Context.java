@@ -24,4 +24,24 @@ public class Context  {
     public String itemIdentifier() {
         return item.itemIdentifier();
     }
+
+    public int getColor() {
+        return item.getColor();
+    }
+
+    public int getSpeed() {
+        return item.getSpeed();
+    }
+
+    public int getX() {
+        return item.getX();
+    }
+
+    public int getY() {
+        return item.getY();
+    }
+
+    public String getName() {
+        return item.getName();
+    }
 }

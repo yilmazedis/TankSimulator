@@ -26,23 +26,29 @@ public class Projectile extends AbstractItem implements Item{
         return super.itemIdentifier();
     }
 
-    public int getSpeed() {
-        return speed;
-    }
-
+    @Override
     public int getColor() {
-        return color;
+        return super.getColor();
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public int getSpeed() {
+        return super.getSpeed();
     }
 
+    @Override
     public int getX() {
-        return x;
+        return super.getX();
     }
 
+    @Override
     public int getY() {
-        return y;
+        return super.getY();
     }
+
+    @Override
+    public String getName() {
+        return super.getName();
+    }
+
 }

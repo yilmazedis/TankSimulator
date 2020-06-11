@@ -2,32 +2,45 @@ package com.working.tanksimulator;
 
 import java.io.*;
 import java.net.*;
+import java.util.Calendar;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 // Client class
 public class Client
 {
+    static String tosend = "";
+    static DataInputStream dis = null;
+    static DataOutputStream dos = null;
+
     public static void main(String[] args) throws IOException
     {
         Scanner scn = new Scanner(System.in);
         Context item = null;
         int x = 0, y = 0;
+        Timer timer = new Timer();
 
         System.out.println("Enter an item");
-        String tosend = scn.nextLine();
+        tosend = scn.nextLine();
         String toconvert;
+        int latency = 0;
 
         switch (tosend) {
             case "tank":
-                item = new Context(new Tank("tank", 3,0,0,10));
+                item = new Context(new Tank("tank", 1,0,0,2));
+                latency = 1;
                 break;
 
             case "car":
-                item = new Context(new Car("car", 3,0,0,10));
+                item = new Context(new Car("car", 3,5,0,5));
+                latency = 1;
                 break;
 
             case "projectile":
-                item = new Context(new Projectile("projectile", 3,0,0,10));
+                item = new Context(new Projectile("projectile", 10,25,0,15));
+                latency = 3;
                 break;
             default:
                 System.out.println("Wrong Command Try Again");
@@ -35,7 +48,9 @@ public class Client
         }
         
         item.printItem();
-        
+
+
+
         try
         {
             // getting localhost ip
@@ -53,17 +68,40 @@ public class Client
 
             // the following loop performs the exchange of
             // information between client and client handler
+
+            TimerTask timerTask = new TimerTask() {
+
+                @Override
+                public void run() {
+                    try {
+
+                        dos.writeUTF(tosend);
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            timer = new Timer("MyTimer");//create a new Timer
+
+            timer.scheduleAtFixedRate(timerTask, 250, latency * 1000);
+
             while (true)
             {
-              //  System.out.println(dis.readUTF());
-                toconvert = scn.nextLine();
 
-                String[] position = toconvert.split(",");
-                item.movement(Integer.valueOf(position[0]), Integer.valueOf(position[1]));
+
+
+
+              //  System.out.println(dis.readUTF());
+                // toconvert = scn.nextLine();
+
+                // String[] position = toconvert.split(",");
+                item.movement(x++, y++);
 
                 tosend = item.toString();
-                dos.writeUTF(tosend);
-
+                //dos.writeUTF(tosend);
 
 
 

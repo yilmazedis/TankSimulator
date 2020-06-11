@@ -30,4 +30,24 @@ public abstract class AbstractItem {
     public String itemIdentifier() {
         return  name + "," +  speed + "," + x + "," + y + "," + color;
     }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
 }

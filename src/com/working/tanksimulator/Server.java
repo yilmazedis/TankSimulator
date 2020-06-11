@@ -54,12 +54,12 @@ public class Server
 // ClientHandler class
 class ClientHandler extends Thread
 {
-    DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
-    DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
-
+    String received = null;
+    Timer timer;
+    int latency = 1;
 
     // Constructor
     public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos)
@@ -72,8 +72,8 @@ class ClientHandler extends Thread
     @Override
     public void run()
     {
-        String received = null;
-        String toreturn = null;
+        // String received = null;
+        // String toreturn = null;
 
         // Initialize Items on screen
         try {
@@ -83,6 +83,17 @@ class ClientHandler extends Thread
         }
 
         System.out.println(received);
+
+        String[] itemInfo = received.split(",");
+
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println(itemInfo[0] + ": " + received);
+            }
+        };
+        timer = new Timer("MyTimer");//create a new Timer
+        timer.scheduleAtFixedRate(timerTask, 250, latency * 1000);
 
         while (true)
         {
@@ -107,7 +118,7 @@ class ClientHandler extends Thread
                 // creating Date object
                // Date date = new Date();
 
-                System.out.println(received);
+                // System.out.println(itemInfo[0] + ": " + received);
 
                 // write on output stream based on the
                 // answer from the client
