@@ -26,6 +26,7 @@ public class Client
         float x = 0.0f, y = 0.f;
         Timer timer = new Timer();
         float deltaTime = 0.0005f;
+        float displaySize = 0.95f;
 
         System.out.println("Enter an item");
         tosend = scn.nextLine();
@@ -33,23 +34,19 @@ public class Client
         int latency = 0;
 
         switch (tosend) {
-            case "tank":
-                item = new Context(new Tank("tank", 1,0,0,2));
+            case "tank" -> {
+                item = new Context(new Tank("tank", 1, -displaySize, 0, 2));
                 latency = 1;
-                break;
-
-            case "car":
-                item = new Context(new Car("car", 3,5,0,5));
+            }
+            case "car" -> {
+                item = new Context(new Car("car", 3, displaySize, 0, 5));
                 latency = 1;
-                break;
-
-            case "projectile":
-                item = new Context(new Projectile("projectile", 10,25,0,15));
+            }
+            case "projectile" -> {
+                item = new Context(new Projectile("projectile", 10, -displaySize / 2, 0, 15));
                 latency = 3;
-                break;
-            default:
-                System.out.println("Wrong Command Try Again");
-                break;
+            }
+            default -> System.out.println("Wrong Command Try Again");
         }
         
         item.printItem();
@@ -91,6 +88,9 @@ public class Client
 
             long window = glfwCreateWindow(320, 240, item.getName(), 0, 0);
 
+            x = item.getX();
+            y = item.getY();
+
             while(!glfwWindowShouldClose(window)) {
 
                 glfwPollEvents();
@@ -98,8 +98,8 @@ public class Client
                 glfwSwapBuffers(window);
 
                 if ( glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-                    x = 0;
-                    y = 0;
+                    x = item.getX();
+                    y = item.getY();
                     System.out.println("Position Reset");
                 }
 

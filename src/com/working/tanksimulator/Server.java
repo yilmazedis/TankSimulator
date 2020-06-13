@@ -12,9 +12,10 @@ import org.lwjgl.system.MemoryStack;
 
 import java.io.*;
 import java.nio.IntBuffer;
-import java.text.*;
 import java.util.*;
 import java.net.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -27,7 +28,7 @@ class Globals {
     public static boolean flag = false;
     public static int size = -1;
     public static List<List<Float>> listOfLists = new ArrayList<List<Float>>();
-
+    public static List<Map> initialInfo = new ArrayList<Map>();
 }
 
 // Server class
@@ -45,7 +46,7 @@ public class Server
         // Invoking the start() method
         t_lwjgl.start();
 
-        int count = 0;
+        int id = 0;
 
         // running infinite loop for getting
         // client request
@@ -67,11 +68,11 @@ public class Server
                 System.out.println("Assigning new thread for this client");
 
                 // create a new thread object
-                Thread t = new ClientHandler(s, dis, dos, count);
+                Thread t = new ClientHandler(s, dis, dos, id);
 
                 // Invoking the start() method
                 t.start();
-                count++;
+                id++;
             }
             catch (Exception e){
                 s.close();
@@ -90,15 +91,15 @@ class ClientHandler extends Thread
     String received = null;
     Timer timer;
     int latency = 1;
-    int count;
+    int id;
 
     // Constructor
-    public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos, int count)
+    public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos, int id)
     {
         this.s = s;
         this.dis = dis;
         this.dos = dos;
-        this.count = count;
+        this.id = id;
     }
 
     public void loop() {
@@ -115,11 +116,17 @@ class ClientHandler extends Thread
 
             String[] itemInfo = received.split(",");
 
-            Globals.listOfLists.set(count ,new ArrayList<>(Arrays.asList(Float.valueOf(itemInfo[0]), Float.valueOf(itemInfo[1]))));
+            Globals.listOfLists.set(id ,new ArrayList<>(Arrays.asList(Float.valueOf(itemInfo[0]), Float.valueOf(itemInfo[1]))));
 //            Globals.listOfLists.get(count).set(0,Float.valueOf(itemInfo[0]));
 //            Globals.listOfLists.get(count).set(1,Float.valueOf(itemInfo[1]));
 
             // System.out.println(Float.valueOf(itemInfo[0]) + " " + Float.valueOf(itemInfo[1]));
+
+            System.out.println(Globals.initialInfo.get(id).get("name"));
+            System.out.println(Globals.initialInfo.get(id).get("speed"));
+            System.out.println(Globals.initialInfo.get(id).get("x"));
+            System.out.println(Globals.initialInfo.get(id).get("y"));
+            System.out.println("");
         }
     }
 
@@ -133,21 +140,18 @@ class ClientHandler extends Thread
         }
 
         System.out.println(received);
+        String[] itemInfo = received.split(",");
+
+        Map m = new LinkedHashMap(itemInfo.length);
+        m.put("name", itemInfo[0]);
+        m.put("speed", itemInfo[1]);
+        m.put("x", itemInfo[2]);
+        m.put("y", itemInfo[3]);
 
         Globals.listOfLists.add(new ArrayList<>(Arrays.asList(0.0f, 0.0f)));
+        Globals.initialInfo.add(m);
         Globals.size++;
 
-        //itemInfo = received.split(",");
-
-
-//        TimerTask timerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-//                System.out.println(itemInfo[0] + ": " + received);
-//            }
-//        };
-//        timer = new Timer("MyTimer");//create a new Timer
-//        timer.scheduleAtFixedRate(timerTask, 250, latency * 1000);
 
         loop();
 
@@ -167,6 +171,7 @@ class MY_LWJGL extends Thread{
 
     public long window;
     public int width, height;
+    float deltaTime = 0.0005f;
 
     public MY_LWJGL(int width, int height) {
         this.width = width;
@@ -229,7 +234,7 @@ class MY_LWJGL extends Thread{
         return window;
     }
 
-    public static void square(float x, float y, float dx, float dy) {
+    public void square(float x, float y, float dx, float dy) {
         glBegin(GL_QUADS);
         glColor4f(1.0F, 0.0F, 0.F, 0);
         glVertex2f(-x + dx, y + dy);
@@ -273,10 +278,13 @@ class MY_LWJGL extends Thread{
             glClear(GL_COLOR_BUFFER_BIT);
 
             for (int i = 0; i <= Globals.size; i++)
-                MY_LWJGL.square(0.1f, 0.1f, Globals.listOfLists.get(i).get(0), Globals.listOfLists.get(i).get(1));
+                render(i);
 
             glfwSwapBuffers(window); // swap the color buffers
         }
     }
 
+    private void render(int i) {
+        square(0.05f, 0.05f, Globals.listOfLists.get(i).get(0), Globals.listOfLists.get(i).get(1));
+    }
 }
