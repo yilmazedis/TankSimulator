@@ -40,7 +40,7 @@ public class Server
         ServerSocket ss = new ServerSocket(5056);
 
         // create a new thread object
-        Thread t_lwjgl = new MY_LWJGL();
+        Thread t_lwjgl = new MY_LWJGL(800, 600);
 
         // Invoking the start() method
         t_lwjgl.start();
@@ -166,6 +166,12 @@ class ClientHandler extends Thread
 class MY_LWJGL extends Thread{
 
     public long window;
+    public int width, height;
+
+    public MY_LWJGL(int width, int height) {
+        this.width = width;
+        this.height = height;
+    }
 
     public long init() {
 
@@ -183,7 +189,7 @@ class MY_LWJGL extends Thread{
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(640, 480, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(width, height, "Hello World!", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 

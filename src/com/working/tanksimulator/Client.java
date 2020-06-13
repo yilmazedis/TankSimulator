@@ -25,6 +25,7 @@ public class Client
         Scanner scn = new Scanner(System.in);
         float x = 0.0f, y = 0.f;
         Timer timer = new Timer();
+        float deltaTime = 0.0005f;
 
         System.out.println("Enter an item");
         tosend = scn.nextLine();
@@ -96,23 +97,29 @@ public class Client
 
                 glfwSwapBuffers(window);
 
+                if ( glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+                    x = 0;
+                    y = 0;
+                    System.out.println("Position Reset");
+                }
+
                 if ( glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-                    y += item.getSpeed() * 0.001f;
+                    y += item.getSpeed() * deltaTime;
                     System.out.println("Up");
                 }
 
                 if ( glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                    y -= item.getSpeed() * 0.001f;
+                    y -= item.getSpeed() * deltaTime;
                     System.out.println("Down");
                 }
 
                 if ( glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                    x -= item.getSpeed() * 0.001f;
+                    x -= item.getSpeed() * deltaTime;
                     System.out.println("Left");
                 }
 
                 if ( glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                    x += item.getSpeed() * 0.001f;
+                    x += item.getSpeed() * deltaTime;
                     System.out.println("Right");
                 }
 
