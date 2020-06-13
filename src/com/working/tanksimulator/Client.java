@@ -19,6 +19,8 @@ public class Client
     static DataOutputStream dos = null;
     private static long window;
     static Context item = null;
+    static Float direct = 0.0f;
+    static boolean deal = false;
 
     public static void main(String[] args) throws IOException
     {
@@ -27,6 +29,7 @@ public class Client
         Timer timer = new Timer();
         float deltaTime = 0.0005f;
         float displaySize = 0.95f;
+
 
         System.out.println("Enter an item");
         tosend = scn.nextLine();
@@ -69,8 +72,15 @@ public class Client
 
                 @Override
                 public void run() {
+
                     try {
-                        tosend = item.toString();
+                        if (deal)
+                            tosend = item.toString() + "," + direct.toString();
+                        else
+                            tosend = item.toString() + "," + 0.0f;
+
+                        deal = false;
+                        System.out.println(tosend);
                         dos.writeUTF(tosend);
                         System.out.println(tosend);
 
@@ -82,7 +92,7 @@ public class Client
 
             timer = new Timer("MyTimer");//create a new Timer
 
-            timer.scheduleAtFixedRate(timerTask, 250, latency * 1000);
+            timer.scheduleAtFixedRate(timerTask, 200, latency * 1000);
 
             glfwInit();
 
@@ -90,6 +100,7 @@ public class Client
 
             x = item.getX();
             y = item.getY();
+
 
             while(!glfwWindowShouldClose(window)) {
 
@@ -103,27 +114,36 @@ public class Client
                     System.out.println("Position Reset");
                 }
 
+                // Arrow Keys
                 if ( glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
                     y += item.getSpeed() * deltaTime;
+                    direct = Globals.YP;
                     System.out.println("Up");
+                    deal = true;
                 }
 
                 if ( glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
                     y -= item.getSpeed() * deltaTime;
+                    direct = Globals.YN;
                     System.out.println("Down");
+                    deal = true;
                 }
 
                 if ( glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
                     x -= item.getSpeed() * deltaTime;
+                    direct = Globals.XN;
                     System.out.println("Left");
+                    deal = true;
                 }
 
                 if ( glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+                    direct = Globals.XP;
                     x += item.getSpeed() * deltaTime;
                     System.out.println("Right");
+                    deal = true;
                 }
 
-              //  System.out.println(dis.readUTF());
+                //  System.out.println(dis.readUTF());
                 // toconvert = scn.nextLine();
 
                 // String[] position = toconvert.split(",");

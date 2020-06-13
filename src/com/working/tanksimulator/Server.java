@@ -24,11 +24,16 @@ import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.opengl.GL11.*;
 
 class Globals {
+    public static final float YP = 1.0f;
+    public static final float YN = 2.0f;
+    public static final float XP = 3.0f;
+    public static final float XN = 4.0f;
     public static long window = 0;
     public static boolean flag = false;
     public static int size = -1;
     public static List<List<Float>> listOfLists = new ArrayList<List<Float>>();
     public static List<Map> initialInfo = new ArrayList<Map>();
+    public static Queue<List<Float>> queue = new LinkedList<List<Float>>();
 }
 
 // Server class
@@ -93,6 +98,7 @@ class ClientHandler extends Thread
     int latency = 1;
     int id;
 
+
     // Constructor
     public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos, int id)
     {
@@ -116,17 +122,22 @@ class ClientHandler extends Thread
 
             String[] itemInfo = received.split(",");
 
-            Globals.listOfLists.set(id ,new ArrayList<>(Arrays.asList(Float.valueOf(itemInfo[0]), Float.valueOf(itemInfo[1]))));
+            Globals.listOfLists.set(id ,new ArrayList<>(Arrays.asList(Float.valueOf(itemInfo[0]),
+                                            Float.valueOf(itemInfo[1]), Float.valueOf(itemInfo[2]))));
 //            Globals.listOfLists.get(count).set(0,Float.valueOf(itemInfo[0]));
 //            Globals.listOfLists.get(count).set(1,Float.valueOf(itemInfo[1]));
 
             // System.out.println(Float.valueOf(itemInfo[0]) + " " + Float.valueOf(itemInfo[1]));
 
-            System.out.println(Globals.initialInfo.get(id).get("name"));
-            System.out.println(Globals.initialInfo.get(id).get("speed"));
-            System.out.println(Globals.initialInfo.get(id).get("x"));
-            System.out.println(Globals.initialInfo.get(id).get("y"));
-            System.out.println("");
+            if (Globals.initialInfo.get(id).get("name").equals("projectile") && Float.parseFloat(itemInfo[1]) != 0.0f ) {
+                Globals.queue.add(new ArrayList<>(Arrays.asList(Float.valueOf(itemInfo[0]), Float.valueOf(itemInfo[1]))));
+            }
+
+//            System.out.println(Globals.initialInfo.get(id).get("name"));
+//            System.out.println(Globals.initialInfo.get(id).get("speed"));
+//            System.out.println(Globals.initialInfo.get(id).get("x"));
+//            System.out.println(Globals.initialInfo.get(id).get("y"));
+//            System.out.println("");
         }
     }
 
@@ -145,10 +156,10 @@ class ClientHandler extends Thread
         Map m = new LinkedHashMap(itemInfo.length);
         m.put("name", itemInfo[0]);
         m.put("speed", itemInfo[1]);
-        m.put("x", itemInfo[2]);
-        m.put("y", itemInfo[3]);
+        m.put("x", Float.valueOf(itemInfo[2]));
+        m.put("y", Float.valueOf(itemInfo[3]));
 
-        Globals.listOfLists.add(new ArrayList<>(Arrays.asList(0.0f, 0.0f)));
+        Globals.listOfLists.add(new ArrayList<>(Arrays.asList(0.0f, 0.0f, 0.0f)));
         Globals.initialInfo.add(m);
         Globals.size++;
 
@@ -172,6 +183,7 @@ class MY_LWJGL extends Thread{
     public long window;
     public int width, height;
     float deltaTime = 0.0005f;
+    boolean PREDICTION_STATUS = true;
 
     public MY_LWJGL(int width, int height) {
         this.width = width;
@@ -280,11 +292,48 @@ class MY_LWJGL extends Thread{
             for (int i = 0; i <= Globals.size; i++)
                 render(i);
 
+            try {
+                sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             glfwSwapBuffers(window); // swap the color buffers
         }
     }
 
     private void render(int i) {
-        square(0.05f, 0.05f, Globals.listOfLists.get(i).get(0), Globals.listOfLists.get(i).get(1));
+
+        float newX = Globals.listOfLists.get(i).get(0);
+        float newY = Globals.listOfLists.get(i).get(1);
+        float direct = Globals.listOfLists.get(i).get(2);
+
+        if (PREDICTION_STATUS & (Globals.initialInfo.get(i).get("name").equals("projectile"))) {
+            System.out.println("Projectile Predict Time " + Globals.queue.size());
+
+            if (Globals.queue.size() == 0) {
+
+                float speed = Float.parseFloat((String) Globals.initialInfo.get(i).get("speed"));
+
+                if (direct == Globals.XP)
+                    newX += 40 * speed * deltaTime;
+                else if (direct == Globals.XN)
+                    newX -= 40 * speed * deltaTime;
+                else if (direct == Globals.YP)
+                    newY += 40 * speed * deltaTime;
+                else if (direct == Globals.YN)
+                    newY -= 40 * speed * deltaTime;
+
+                Globals.listOfLists.get(i).set(0, newX);
+                Globals.listOfLists.get(i).set(1, newY);
+
+                square(0.05f, 0.05f, newX, newY);
+
+            } else {
+                Globals.queue.remove();
+                square(0.05f, 0.05f, newX, newY);
+            }
+        } else {
+            square(0.05f, 0.05f, newX, newY);
+        }
     }
 }
