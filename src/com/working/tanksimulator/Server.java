@@ -1,26 +1,22 @@
 package com.working.tanksimulator;
 
-// Java implementation of Server side
-// It contains two classes : Server and ClientHandler
-// Save file as Server.java
-
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.IntBuffer;
 import java.util.*;
-import java.net.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.opengl.GL11.*;
 
 class Globals {
@@ -28,12 +24,10 @@ class Globals {
     public static final float YN = 2.0f;
     public static final float XP = 3.0f;
     public static final float XN = 4.0f;
-    public static long window = 0;
-    public static boolean flag = false;
     public static int size = -1;
     public static List<List<Float>> listOfLists = new ArrayList<List<Float>>();
     public static List<Map> initialInfo = new ArrayList<Map>();
-    public static Queue<List<Float>> queue = new LinkedList<List<Float>>();
+    public static int predictCount = 0;
 }
 
 // Server class
@@ -46,7 +40,7 @@ public class Server
         ServerSocket ss = new ServerSocket(5056);
 
         // create a new thread object
-        Thread t_lwjgl = new MY_LWJGL(800, 600);
+        Thread t_lwjgl = new MY_LWJGL(1200, 600); // 800 600
 
         // Invoking the start() method
         t_lwjgl.start();
@@ -58,7 +52,6 @@ public class Server
         while (true)
         {
             Socket s = null;
-
             try
             {
                 // socket object to receive incoming client requests
@@ -94,8 +87,6 @@ class ClientHandler extends Thread
     final DataOutputStream dos;
     final Socket s;
     String received = null;
-    Timer timer;
-    int latency = 1;
     int id;
 
 
@@ -112,10 +103,7 @@ class ClientHandler extends Thread
 
         while (true) {
             try {
-
-                // receive the answer from client
                 received = dis.readUTF();
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -124,20 +112,10 @@ class ClientHandler extends Thread
 
             Globals.listOfLists.set(id ,new ArrayList<>(Arrays.asList(Float.valueOf(itemInfo[0]),
                                             Float.valueOf(itemInfo[1]), Float.valueOf(itemInfo[2]))));
-//            Globals.listOfLists.get(count).set(0,Float.valueOf(itemInfo[0]));
-//            Globals.listOfLists.get(count).set(1,Float.valueOf(itemInfo[1]));
-
-            // System.out.println(Float.valueOf(itemInfo[0]) + " " + Float.valueOf(itemInfo[1]));
 
             if (Globals.initialInfo.get(id).get("name").equals("projectile") && Float.parseFloat(itemInfo[1]) != 0.0f ) {
-                Globals.queue.add(new ArrayList<>(Arrays.asList(Float.valueOf(itemInfo[0]), Float.valueOf(itemInfo[1]))));
+                Globals.predictCount++;
             }
-
-//            System.out.println(Globals.initialInfo.get(id).get("name"));
-//            System.out.println(Globals.initialInfo.get(id).get("speed"));
-//            System.out.println(Globals.initialInfo.get(id).get("x"));
-//            System.out.println(Globals.initialInfo.get(id).get("y"));
-//            System.out.println("");
         }
     }
 
@@ -162,7 +140,6 @@ class ClientHandler extends Thread
         Globals.listOfLists.add(new ArrayList<>(Arrays.asList(0.0f, 0.0f, 0.0f)));
         Globals.initialInfo.add(m);
         Globals.size++;
-
 
         loop();
 
@@ -291,7 +268,6 @@ class MY_LWJGL extends Thread{
 
             for (int i = 0; i <= Globals.size; i++)
                 render(i);
-
             try {
                 sleep(1000);
             } catch (InterruptedException e) {
@@ -308,9 +284,9 @@ class MY_LWJGL extends Thread{
         float direct = Globals.listOfLists.get(i).get(2);
 
         if (PREDICTION_STATUS & (Globals.initialInfo.get(i).get("name").equals("projectile"))) {
-            System.out.println("Projectile Predict Time " + Globals.queue.size());
+            System.out.println("Projectile Predict Time " + Globals.predictCount);
 
-            if (Globals.queue.size() == 0) {
+            if (Globals.predictCount == 0) {
 
                 float speed = Float.parseFloat((String) Globals.initialInfo.get(i).get("speed"));
 
@@ -329,7 +305,7 @@ class MY_LWJGL extends Thread{
                 square(0.05f, 0.05f, newX, newY);
 
             } else {
-                Globals.queue.remove();
+                Globals.predictCount--;
                 square(0.05f, 0.05f, newX, newY);
             }
         } else {

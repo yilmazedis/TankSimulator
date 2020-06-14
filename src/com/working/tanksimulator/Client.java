@@ -2,7 +2,6 @@ package com.working.tanksimulator;
 
 import java.io.*;
 import java.net.*;
-import java.util.Calendar;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -10,46 +9,52 @@ import java.util.TimerTask;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
-
 // Client class
 public class Client
 {
     static String tosend = "";
-    static DataInputStream dis = null;
     static DataOutputStream dos = null;
-    private static long window;
     static Context item = null;
     static Float direct = 0.0f;
     static boolean deal = false;
 
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args)
     {
         Scanner scn = new Scanner(System.in);
-        float x = 0.0f, y = 0.f;
-        Timer timer = new Timer();
+        float x, y;
+        Timer timer;
         float deltaTime = 0.0005f;
         float displaySize = 0.95f;
+        int latency = 0;
 
 
         System.out.println("Enter an item");
         tosend = scn.nextLine();
-        String toconvert;
-        int latency = 0;
 
-        switch (tosend) {
-            case "tank" -> {
-                item = new Context(new Tank("tank", 1, -displaySize, 0, 2));
-                latency = 1;
+        boolean checkItem = true;
+        while (checkItem) {
+            switch (tosend) {
+                case "tank" -> {
+                    item = new Context(new Tank("tank", 1, -displaySize, 0, 2));
+                    latency = 1;
+                    checkItem = false;
+                }
+                case "car" -> {
+                    item = new Context(new Car("car", 3, displaySize, 0, 5));
+                    latency = 1;
+                    checkItem = false;
+                }
+                case "projectile" -> {
+                    item = new Context(new Projectile("projectile", 10, -displaySize / 2, 0, 15));
+                    latency = 3;
+                    checkItem = false;
+                }
+                default -> {
+                    System.out.println("Wrong Command Try Again");
+                    System.out.println("Enter an item");
+                    tosend = scn.nextLine();
+                }
             }
-            case "car" -> {
-                item = new Context(new Car("car", 3, displaySize, 0, 5));
-                latency = 1;
-            }
-            case "projectile" -> {
-                item = new Context(new Projectile("projectile", 10, -displaySize / 2, 0, 15));
-                latency = 3;
-            }
-            default -> System.out.println("Wrong Command Try Again");
         }
         
         item.printItem();
@@ -63,8 +68,7 @@ public class Client
             Socket s = new Socket(ip, 5056);
 
             // obtaining input and out streams
-            DataInputStream dis = new DataInputStream(s.getInputStream());
-            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+            dos = new DataOutputStream(s.getOutputStream());
             // Initialize Items on screen
             dos.writeUTF(item.itemIdentifier());
 
@@ -95,12 +99,10 @@ public class Client
             timer.scheduleAtFixedRate(timerTask, 200, latency * 1000);
 
             glfwInit();
-
             long window = glfwCreateWindow(320, 240, item.getName(), 0, 0);
 
             x = item.getX();
             y = item.getY();
-
 
             while(!glfwWindowShouldClose(window)) {
 
@@ -143,32 +145,14 @@ public class Client
                     deal = true;
                 }
 
-                //  System.out.println(dis.readUTF());
-                // toconvert = scn.nextLine();
-
-                // String[] position = toconvert.split(",");
                 item.movement(x, y);
 
-                System.out.println(tosend);
-                //dos.writeUTF(tosend);
-
-
-
-                // If client sends exit,close this connection
-                // and then break from the while loop
-                if(tosend.equals("Exit"))
-                {
-                    System.out.println("Closing this connection : " + s);
-                    s.close();
-                    System.out.println("Connection closed");
-                    break;
-                }
-
+                //System.out.println(tosend);
             }
 
             // closing resources
             scn.close();
-            dis.close();
+            s.close();
             dos.close();
         }catch(Exception e){
             e.printStackTrace();
